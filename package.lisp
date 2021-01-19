@@ -2,4 +2,4 @@
 
 (defpackage #:flowfps
   (:use #:cl #:opticl)
-  (:export :main))
+  (:export :blend :average))
