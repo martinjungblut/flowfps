@@ -1,5 +1,5 @@
 ;;;; package.lisp
 
 (defpackage #:flowfps
-  (:use #:cl #:opticl)
+  (:use #:cl #:opticl #:iterate)
   (:export :blend :average))
