@@ -1,27 +1,21 @@
 (in-package #:flowfps)
-(declaim (optimize (speed 3) (debug 0) (safety 0)))
+(declaim (optimize (speed 3) (debug 1) (safety 0)))
 
 (defun get-png-filepath (i)
   (format nil "~d.png" i))
 
-(defmacro image-iterate (image y x &rest body)
-  `(with-image-bounds (height width) ,image
-     (loop for ,y below height do
-       (loop for ,x below width do
-             ,@body))))
+(declaim (ftype (function ((unsigned-byte 8) (unsigned-byte 8) (unsigned-byte 32) (unsigned-byte 32)) (unsigned-byte 8)) channel-calculate-step))
+(declaim (inline channel-calculate-step))
+(defun channel-calculate-step (a b frame framecount)
+  (nth-value 0 (truncate (* frame (/ (abs (- a b)) (+ 1 framecount))))))
 
 (declaim (ftype (function ((unsigned-byte 8) (unsigned-byte 8) (unsigned-byte 32) (unsigned-byte 32)) (unsigned-byte 8)) channel-apply-step))
 (declaim (inline channel-apply-step))
 (defun channel-apply-step (a b frame framecount)
   (let ((channel-step (channel-calculate-step a b frame framecount)))
-	(let ((result (funcall (if (> a b) '- '+) a channel-step)))
-	  result)))
-
-(declaim (ftype (function ((unsigned-byte 8) (unsigned-byte 8) (unsigned-byte 32) (unsigned-byte 32)) (unsigned-byte 8)) channel-calculate-step))
-(declaim (inline channel-calculate-step))
-(defun channel-calculate-step (a b frame framecount)
-  (let ((result (truncate (* frame (/ (abs (- a b)) (+ 1 framecount))))))
-	result))
+	(if (> a b)
+		(- a channel-step)
+		(+ a channel-step))))
 
 (defmacro pixel-bind (image y x r g b &rest body)
   `(multiple-value-bind (,r ,g ,b) (pixel ,image ,y ,x)
@@ -35,12 +29,15 @@
 			  (pixel-bind img-b y x red-b green-b blue-b
 						  (let ((red-c (channel-apply-step red-a red-b frame framecount))
 								(green-c (channel-apply-step green-a green-b frame framecount))
-								(blue-c (channel-apply-step blue-a blue-b frame framecount))
-								(result 1))
-							(declare (type (unsigned-byte 1) result))
+								(blue-c (channel-apply-step blue-a blue-b frame framecount)))
 							(setf (pixel img-target y x)
-								  (values red-c green-c blue-c))
-							result))))
+								  (values red-c green-c blue-c))))))
+
+(defmacro image-iterate (image y x &rest body)
+  `(with-image-bounds (height width) ,image
+     (loop for ,y below height do
+       (loop for ,x below width do
+             ,@body))))
 
 (defun write-intermediate-png-files (img-a img-b framecount)
   (let ((img-target (copy-image img-a)))
