@@ -39,30 +39,27 @@
        (loop for ,x below width do
          ,@body))))
 
-(defun write-intermediate-png-files (img-a img-b img-a-counter framecount)
+(defun write-intermediate-png-files (img-a img-b img-counter framecount)
   (let ((img-target (copy-image img-a)))
     (iterate:iter (iterate:for frame from 1 to framecount)
       (image-iterate img-a y x
         (pixel-set-intermediate img-a img-b img-target y x frame framecount))
-      (write-png-file (get-png-filepath (+ frame img-a-counter)) img-target))))
+      (write-png-file (get-png-filepath (+ frame img-counter)) img-target))))
 
-(defun blend-images (img-a-path img-b-path img-a-counter img-b-counter framecount)
+(defun blend-images (img-a-path img-b-path img-counter framecount)
   (let ((img-a (read-png-file img-a-path))
          (img-b (read-png-file img-b-path)))
-    (write-png-file (get-png-filepath img-a-counter) img-a)
-    (write-png-file (get-png-filepath img-b-counter) img-b)
-    (write-intermediate-png-files img-a img-b img-a-counter framecount)))
+    (write-png-file (get-png-filepath img-counter) img-a)
+    (write-intermediate-png-files img-a img-b img-counter framecount)))
 
 (defun blend-directory (dir-path framecount)
-  (let* ((img-a-counter 1)
-          (img-b-counter (+ 2 framecount)))
+  (let* ((img-counter 1))
     (loop for pair in (loop for (a b) on (cl-fad:list-directory dir-path) collect (list a b)) do
       (let* ((img-a-path (nth 0 pair))
               (img-b-path (nth 1 pair)))
         (if img-b-path
           (progn
             (print (format nil "Blending images ~A + ~A" img-a-path img-b-path))
-            (print (format nil "img-a-counter=~d img-b-counter=~d" img-a-counter img-b-counter))
-            (blend-images img-a-path img-b-path img-a-counter img-b-counter framecount)
-            (setf img-a-counter (+ 1 img-b-counter))
-            (setf img-b-counter (+ img-b-counter 2 framecount))))))))
+            (print (format nil "img-counter=~d" img-counter))
+            (blend-images img-a-path img-b-path img-counter framecount)
+            (setf img-counter (+ img-counter framecount 1))))))))
