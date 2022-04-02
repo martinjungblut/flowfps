@@ -1,4 +1,4 @@
-(in-package #:flowfps)
+(in-package :flowfps)
 (declaim (optimize (speed 3) (debug 1) (safety 0)))
 
 (defun get-png-filepath (i)
