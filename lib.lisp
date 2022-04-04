@@ -40,3 +40,7 @@
             (new-g (rgb- g factor))
             (new-b (rgb- b factor)))
       (values new-r new-g new-b a))))
+
+(defun filter-experimental ()
+  (lambda (r g b a)
+    (values g b r a)))
