@@ -68,3 +68,8 @@
 (defun filter-rgb-lshift ()
   (lambda (r g b a)
     (values g b r a)))
+
+(defun filter-sepia (factor)
+  (lambda (r g b a)
+    (multiple-value-bind (new-r new-g new-b new-a) (funcall (filter-average-greyscale) r g b a)
+      (values (rgb+ new-r factor) (rgb+ new-g factor) new-b new-a))))
