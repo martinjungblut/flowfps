@@ -7,4 +7,5 @@
   :depends-on (:cl-fad :opticl :iterate)
   :components ((:file "package")
                 (:file "lib")
+                (:file "filters-iterative")
                 (:file "cli")))
