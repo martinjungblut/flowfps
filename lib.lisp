@@ -29,5 +29,11 @@
 (defun rgb/ (value factor)
   (nth-value 0 (round (/ value factor))))
 
+(defun rgb-fit (value)
+  (cond
+    ((< value 0) 0)
+    ((> value 255) 255)
+    (t (nth-value 0 (round value)))))
+
 (defun rgb-noise (value factor)
   (rgb- (rgb+ value (random factor)) (random factor)))

@@ -38,3 +38,9 @@
 (def-iterative-filter filter-sepia (factor)
   (let ((n (nth-value 0 (round (/ (+ r g b) 3)))))
     (values (rgb+ n factor) (rgb+ n factor) n a)))
+
+(def-iterative-filter filter-saturation (factor)
+  (let ((nr (+ (* (- r 127) factor) 127))
+         (ng (+ (* (- g 127) factor) 127))
+         (nb (+ (* (- b 127) factor) 127)))
+    (values (rgb-fit nr) (rgb-fit ng) (rgb-fit nb) a)))
